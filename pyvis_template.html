@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+<head>
+  <title>{{ title }}</title>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="mynetwork"></div>
+<script type="text/javascript">
+  var nodes = new vis.DataSet({{ nodes }});
+  var edges = new vis.DataSet({{ edges }});
+
+  var container = document.getElementById('mynetwork');
+  var data = {
+    nodes: nodes,
+    edges: edges
+  };
+  var options = {};
+  var network = new vis.Network(container, data, options);
+
+  network.on("click", function (params) {
+    if (params.nodes.length > 0) {
+      var nodeId = params.nodes[0];
+      var node = nodes.get(nodeId);
+      if (node.title) {
+        var infoBox = document.createElement("div");
+        infoBox.innerHTML = node.title;
+        infoBox.style.position = "absolute";
+        infoBox.style.left = params.pointer.DOM.x + 'px';
+        infoBox.style.top = params.pointer.DOM.y + 'px';
+        infoBox.style.background = "white";
+        infoBox.style.border = "1px solid black";
+        document.body.appendChild(infoBox);
+        setTimeout(function () {
+          infoBox.parentNode.removeChild(infoBox);
+        }, 5000);
+      }
+    }
+  });
+</script>
+</body>
+</html>

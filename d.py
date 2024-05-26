@@ -2,53 +2,46 @@ import pandas as pd
 import networkx as nx
 import matplotlib.pyplot as plt
 
-# Excel dosyasını oku
-df = pd.read_excel('veriler5.xlsx')
+veri_seti = pd.read_csv(r"C:\Users\yunus\OneDrive\Masaüstü\enes\movies.csv").head(10)
+print(veri_seti.head())
 
-# Yıllara göre ev sahibi ve deplasman takımların attığı gol ortalamalarını hesapla
-average_goals_by_year_home = df.groupby('Yil')['Ev Sahibi Skor'].mean()
-average_goals_by_year_away = df.groupby('Yil')['Deplasman Skor'].mean()
+filmler = veri_seti["Series_Title"]
+yonetmenler = veri_seti["Director"]
+basroller = veri_seti["Star1"]
+turler = veri_seti["Genre"]
 
-# Boş bir graf oluştur
 G = nx.Graph()
 
-# Merkez düğümü ekleyelim
-central_node = 'Years'
-G.add_node(central_node, label=central_node)
+for film in filmler:
+    G.add_node(film, size=1000, color="yellow")
+for yonetmen, basrol, tur_listesi in zip(yonetmenler, basroller, turler):
+    G.add_node(yonetmen, color="red")
+    G.add_node(basrol, color="blue")
+    for tur in tur_listesi.split(","):
+        G.add_node(tur.strip(), color="green")
 
-# Her yıl için ayrı bir düğüm oluştur
-for year in df['Yil'].unique():
-    # Yıl düğümünü ekleyelim
-    G.add_node(year, label=f"{year}")
+for film, yonetmen, basrol, tur_listesi in zip(filmler, yonetmenler, basroller, turler):
+    G.add_edge(film, yonetmen, relationship="Yonetmen", color="red")
+    G.add_edge(film, basrol, relationship="Basrol", color="blue")
+    for tur in tur_listesi.split(","):
+        G.add_edge(film, tur.strip(), relationship="Tur", color="green")
 
-    # Ev sahibi ve deplasman ortalamalarını ayrı düğümlere ekleyelim
-    G.add_node(f"{year} (Home)", label=f"Home Avg: {average_goals_by_year_home.get(year, 0):.2f}")
-    G.add_node(f"{year} (Away)", label=f"Away Avg: {average_goals_by_year_away.get(year, 0):.2f}")
 
-    # Merkez düğüm ile yıl düğümleri arasında bağlantılar oluşturalım
-    G.add_edge(central_node, year)
+plt.figure(figsize=(15, 10))  # Matplotlib ile tam ekran pencere oluştur
 
-    # Yıl düğümü ile ev sahibi ve deplasman düğümleri arasında bağlantılar oluşturalım
-    G.add_edge(year, f"{year} (Home)")
-    G.add_edge(year, f"{year} (Away)")
+pos = nx.spring_layout(G)
+edges = G.edges()
+edge_colors = [G[u][v]['color'] for u, v in edges]
+node_colors = [G.nodes[node]['color'] for node in G.nodes()]
+sizes = [node[1]['size'] if 'size' in node[1] else 600 for node in G.nodes(data=True)]
 
-# Grafı çiz
-pos = nx.spring_layout(G, dim=2)  # Grafı çizmek için pozisyon belirleme, 2 boyutlu
 
-# Düğümleri çizme
-nx.draw_networkx_nodes(G, pos, nodelist=[node for node in G.nodes() if "Home" in G.nodes[node]['label']], node_color='green', node_size=2000)
-nx.draw_networkx_nodes(G, pos, nodelist=[node for node in G.nodes() if "Away" in G.nodes[node]['label']], node_color='yellow', node_size=2000)
-nx.draw_networkx_nodes(G, pos, nodelist=[central_node], node_color='red', node_size=2000)
+nx.draw_networkx_nodes(G, pos, node_color=node_colors, node_size=sizes, alpha=0.7)
 
-# Yılları daire içine almak için farklı renklerde düğümleri çizme
-for year in df['Yil'].unique():
-    nx.draw_networkx_nodes(G, pos, nodelist=[year], node_color='skyblue', node_size=2000)
+nx.draw_networkx_edges(G, pos, edge_color=edge_colors)
 
-nx.draw_networkx_labels(G, pos, font_size=10, font_family='sans-serif', labels=nx.get_node_attributes(G, 'label'))
+nx.draw_networkx_labels(G, pos, font_size=6, font_weight='bold')
 
-# Kenarları çizme
-nx.draw_networkx_edges(G, pos)
-
-plt.title('Yıllara Göre Ev Sahibi ve Deplasman Takımların Attığı Gol Ortalamaları')
-plt.axis('off')  # Eksenleri kapat
+plt.axis('off')
+plt.tight_layout()  # Grafikleri sıkıştır
 plt.show()
