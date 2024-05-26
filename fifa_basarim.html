@@ -1,0 +1,229 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 750px;
+                 background-color: #222222;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+             #config {
+                 float: left;
+                 width: 400px;
+                 height: 600px;
+             }
+             
+
+             
+        </style>
+    
+    <style>
+        #search-container {
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 999;
+        }
+        #search {
+            padding: 10px;
+        font-size: 16px;
+        width: 300px;
+        border: 2px solid #ddd;
+        border-radius: 5px;
+    }
+    </style>
+    </head>
+    
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+            <div id="config"></div>
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": "#97c2fc", "font": {"color": "white"}, "id": "Spain", "label": "Spain", "shape": "dot", "title": "Spain: 18.60 puan"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Netherlands", "label": "Netherlands", "shape": "dot", "title": "Netherlands: 18.60 puan"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Germany", "label": "Germany", "shape": "dot", "title": "Germany: 16.10 puan"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Uruguay", "label": "Uruguay", "shape": "dot", "title": "Uruguay: 13.30 puan"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Argentina", "label": "Argentina", "shape": "dot", "title": "Argentina: 12.40 puan"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Brazil", "label": "Brazil", "shape": "dot", "title": "Brazil: 10.50 puan"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Paraguay", "label": "Paraguay", "shape": "dot", "title": "Paraguay: 8.10 puan"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Ghana", "label": "Ghana", "shape": "dot", "title": "Ghana: 7.10 puan"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Japan", "label": "Japan", "shape": "dot", "title": "Japan: 6.20 puan"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Chile", "label": "Chile", "shape": "dot", "title": "Chile: 5.80 puan"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Portugal", "label": "Portugal", "shape": "dot", "title": "Portugal: 5.60 puan"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "United States", "label": "United States", "shape": "dot", "title": "United States: 5.00 puan"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "England", "label": "England", "shape": "dot", "title": "England: 4.80 puan"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Ivory Coast", "label": "Ivory Coast", "shape": "dot", "title": "Ivory Coast: 4.10 puan"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Slovenia", "label": "Slovenia", "shape": "dot", "title": "Slovenia: 4.00 puan"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Switzerland", "label": "Switzerland", "shape": "dot", "title": "Switzerland: 4.00 puan"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Mexico", "label": "Mexico", "shape": "dot", "title": "Mexico: 3.90 puan"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "South Africa", "label": "South Africa", "shape": "dot", "title": "South Africa: 3.80 puan"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "South Korea", "label": "South Korea", "shape": "dot", "title": "South Korea: 3.80 puan"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Slovakia", "label": "Slovakia", "shape": "dot", "title": "Slovakia: 3.80 puan"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Australia", "label": "Australia", "shape": "dot", "title": "Australia: 3.70 puan"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "New Zealand", "label": "New Zealand", "shape": "dot", "title": "New Zealand: 3.00 puan"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Serbia", "label": "Serbia", "shape": "dot", "title": "Serbia: 2.90 puan"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Greece", "label": "Greece", "shape": "dot", "title": "Greece: 2.70 puan"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Denmark", "label": "Denmark", "shape": "dot", "title": "Denmark: 2.70 puan"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Italy", "label": "Italy", "shape": "dot", "title": "Italy: 1.90 puan"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Nigeria", "label": "Nigeria", "shape": "dot", "title": "Nigeria: 0.80 puan"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Algeria", "label": "Algeria", "shape": "dot", "title": "Algeria: 0.80 puan"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "France", "label": "France", "shape": "dot", "title": "France: 0.70 puan"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Honduras", "label": "Honduras", "shape": "dot", "title": "Honduras: 0.70 puan"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Cameroon", "label": "Cameroon", "shape": "dot", "title": "Cameroon: -0.30 puan"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "North Korea", "label": "North Korea", "shape": "dot", "title": "North Korea: -1.10 puan"}]);
+                  edges = new vis.DataSet([{"from": "South Africa", "to": "Mexico"}, {"from": "Uruguay", "to": "France"}, {"from": "Argentina", "to": "Nigeria"}, {"from": "England", "to": "United States"}, {"from": "South Korea", "to": "Greece"}, {"from": "Algeria", "to": "Slovenia"}, {"from": "Germany", "to": "Australia"}, {"from": "Serbia", "to": "Ghana"}, {"from": "Italy", "to": "Paraguay"}, {"from": "Japan", "to": "Cameroon"}, {"from": "Netherlands", "to": "Denmark"}, {"from": "Brazil", "to": "North Korea"}, {"from": "Ivory Coast", "to": "Portugal"}, {"from": "New Zealand", "to": "Slovakia"}, {"from": "Honduras", "to": "Chile"}, {"from": "South Africa", "to": "Uruguay"}, {"from": "Spain", "to": "Switzerland"}, {"from": "Argentina", "to": "South Korea"}, {"from": "France", "to": "Mexico"}, {"from": "Greece", "to": "Nigeria"}, {"from": "England", "to": "Algeria"}, {"from": "Germany", "to": "Serbia"}, {"from": "Slovenia", "to": "United States"}, {"from": "Cameroon", "to": "Denmark"}, {"from": "Ghana", "to": "Australia"}, {"from": "Netherlands", "to": "Japan"}, {"from": "Brazil", "to": "Ivory Coast"}, {"from": "Italy", "to": "New Zealand"}, {"from": "Slovakia", "to": "Paraguay"}, {"from": "Chile", "to": "Switzerland"}, {"from": "Portugal", "to": "North Korea"}, {"from": "Spain", "to": "Honduras"}, {"from": "Greece", "to": "Argentina"}, {"from": "Mexico", "to": "Uruguay"}, {"from": "Nigeria", "to": "South Korea"}, {"from": "South Africa", "to": "France"}, {"from": "Australia", "to": "Serbia"}, {"from": "Ghana", "to": "Germany"}, {"from": "Slovenia", "to": "England"}, {"from": "United States", "to": "Algeria"}, {"from": "Cameroon", "to": "Netherlands"}, {"from": "Denmark", "to": "Japan"}, {"from": "Paraguay", "to": "New Zealand"}, {"from": "Slovakia", "to": "Italy"}, {"from": "Chile", "to": "Spain"}, {"from": "North Korea", "to": "Ivory Coast"}, {"from": "Portugal", "to": "Brazil"}, {"from": "Switzerland", "to": "Honduras"}, {"from": "Uruguay", "to": "South Korea"}, {"from": "United States", "to": "Ghana"}, {"from": "Argentina", "to": "Mexico"}, {"from": "Germany", "to": "England"}, {"from": "Brazil", "to": "Chile"}, {"from": "Netherlands", "to": "Slovakia"}, {"from": "Paraguay", "to": "Japan"}, {"from": "Spain", "to": "Portugal"}, {"from": "Netherlands", "to": "Brazil"}, {"from": "Uruguay", "to": "Ghana"}, {"from": "Argentina", "to": "Germany"}, {"from": "Paraguay", "to": "Spain"}, {"from": "Uruguay", "to": "Netherlands"}, {"from": "Germany", "to": "Spain"}, {"from": "Uruguay", "to": "Germany"}, {"from": "Netherlands", "to": "Spain"}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {
+    "configure": {
+        "enabled": true,
+        "filter": [
+            "physics"
+        ]
+    },
+    "edges": {
+        "color": {
+            "inherit": true
+        },
+        "smooth": {
+            "enabled": true,
+            "type": "dynamic"
+        }
+    },
+    "interaction": {
+        "dragNodes": true,
+        "hideEdgesOnDrag": false,
+        "hideNodesOnDrag": false
+    },
+    "physics": {
+        "enabled": true,
+        "stabilization": {
+            "enabled": true,
+            "fit": true,
+            "iterations": 1000,
+            "onlyDynamicEdges": false,
+            "updateInterval": 50
+        }
+    }
+};
+
+                  
+
+
+                  
+                  // if this network requires displaying the configure window,
+                  // put it in its div
+                  options.configure["container"] = document.getElementById("config");
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    
+    <div id="search-container">
+        <input type="text" id="search" placeholder="Search...">
+    </div>
+    <script type="text/javascript">
+        document.getElementById('search').addEventListener('input', function() {
+            var term = this.value.toLowerCase();
+            var nodes = network.body.data.nodes;
+            nodes.update(nodes.get().map(function(node) {
+                if (!node.originalColor) {
+                    node.originalColor = node.color;
+                    node.originalSize = node.size;
+                    node.originalBorderWidth = node.borderWidth;
+                }
+
+                if (term && node.label.toLowerCase().includes(term)) {
+                    node.color = '#ffff00';  // Aranan terimi içeren düğümleri sarı renkle vurgula
+                    node.size = 30;  // Aranan terimi içeren düğümlerin boyutunu artır
+                    node.borderWidth = 3;  // Kenarlık genişliği ekle
+                    node.borderWidthSelected = 5;  // Seçildiğinde kenarlık genişliği artır
+                } else {
+                    node.color = node.originalColor;
+                    node.size = node.originalSize;  // Diğer düğümleri normal boyuta getir
+                    node.borderWidth = node.originalBorderWidth;  // Kenarlık genişliğini normal hale getir
+                }
+                return node;
+            }));
+        });
+
+        // Node'ların orijinal renklerini sakla
+        network.on('beforeDrawing', function() {
+            network.body.data.nodes.get().forEach(function(node) {
+                if (!node.originalColor) {
+                    node.originalColor = node.color;
+                    node.originalSize = node.size;
+                    node.originalBorderWidth = node.borderWidth;
+                }
+            });
+        });
+    </script>
+    </body>
+    
+</html>

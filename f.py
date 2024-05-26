@@ -24,7 +24,7 @@ puanlama_sistemi = {
 takim_skorlari = {}
 for takim in takimlar:
     takim_filtre = (df['Kazanan Takim'] == takim) | (df['Kaybeden Takim'] == takim)
-    filtered_df = df[takim_filtre]
+    filtered_df = df[takim_filtre].copy()  # SettingWithCopyWarning uyarısını önlemek için kopya oluştur
     filtered_df.loc[:, 'Puanlama'] = filtered_df['Asama'].map(puanlama_sistemi)
     tur_atlama_sayisi = filtered_df.groupby('Yil').size()
     takim_skorlari[takim] = tur_atlama_sayisi * 10
@@ -42,7 +42,16 @@ for node, score in genel_skorlar.items():
 
 # Bağlantıları ekle
 for index, row in df.iterrows():
-    nt.add_edge(row['Kazanan Takim'].lower(), row['Kaybeden Takim'].lower())
+    kazanan = row['Kazanan Takim'].strip().lower()
+    kaybeden = row['Kaybeden Takim'].strip().lower()
+
+    if kazanan not in nt.get_nodes():
+        nt.add_node(kazanan)
+
+    if kaybeden not in nt.get_nodes():
+        nt.add_node(kaybeden)
+
+    nt.add_edge(kazanan, kaybeden)
 
 # Görselleştirmeyi HTML olarak kaydet
 nt.show('network.html')

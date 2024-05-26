@@ -65,4 +65,4 @@ for source, target, data in G.edges(data=True):
     net.add_edge(source, target, color=data['color'])
 
 # HTML dosyasını kaydet ve göster
-net.show('football_graph.html')
+net.show('yillara_gore_gol_ortalaması.html')
